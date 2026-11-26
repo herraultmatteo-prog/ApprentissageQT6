@@ -31,9 +31,11 @@ private slots:
 
 private:
     Ui::AuditServeurWidget *ui;
-    QProcess *process;
+    // QProcess *process;
     QTcpServer *socketEcouteServeur;
-    QTcpSocket *socketDialogueClient;
+    // QTcpSocket *socketDialogueClient;
+    QList<QTcpSocket*> lesClients;
+    QList<QProcess*> lesProcess;
 
 };
 #endif // AUDITSERVEURWIDGET_H
