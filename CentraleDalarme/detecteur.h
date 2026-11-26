@@ -15,11 +15,15 @@ public:
     explicit Detecteur(QWidget *parent = nullptr);
     ~Detecteur();
 
+signals:
+    void intrusDetecte();
+
 protected slots:
     virtual void on_pushButtonIntrus_clicked();
 
 private:
     Ui::Detecteur *ui;
+
 };
 
 #endif // DETECTEUR_H

@@ -6,16 +6,20 @@
 
 class DetecteurTemporise : public Detecteur
 {
-public:
-    DetecteurTemporise();
-    ~DetecteurTemporise();
 
-private slots:
+public:
+    explicit DetecteurTemporise(QWidget *parent = nullptr);
+    ~DetecteurTemporise();
+    void LancerTempo();
+
+public slots:
+    void onTimerIntrus_timeout();
+
+protected slots:
     virtual void on_pushButtonIntrus_clicked();
-    void onTimerPresence_timeout();
 
 private:
-    QTimer TimerPresence;
+    QTimer timerIntrus;
 };
 
 #endif // DETECTEURTEMPORISE_H

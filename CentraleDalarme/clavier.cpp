@@ -2,23 +2,21 @@
 #include "ui_clavier.h"
 #include <QMessageBox>
 
-Clavier::Clavier(QWidget *parent)
+Clavier::Clavier(CentraleDalarme *_laCentrale, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Clavier)
+    , laCentrale(_laCentrale)
 {
     ui->setupUi(this);
-    connect(ui->pushButton_0,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    connect(ui->pushButton_1,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    // connect(ui->pushButton_2,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    // connect(ui->pushButton_3,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    // connect(ui->pushButton_4,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    // connect(ui->pushButton_5,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    connect(ui->pushButton_6,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    connect(ui->pushButton_7,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    connect(ui->pushButton_8,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
-    connect(ui->pushButton_9,&QPushButton::clicked,this,&Clavier::TraiterChiffre);
+
+    QList<QPushButton*> allButtons = this->findChildren<QPushButton*>();
+    foreach(QPushButton* button, allButtons) {
+        connect(button, &QPushButton::clicked, this, &Clavier::onQPushButtonClicked);
+    }
 
     connect(&timerLed,&QTimer::timeout,this,&Clavier::onTimerLed_timeout);
+
+    connect(laCentrale, &CentraleDalarme::EtatCentraleChange, this, &Clavier::onEtatCentraleChange);
 
     leDetecteur = nullptr;
     leDetecteurTemp = nullptr;
@@ -29,36 +27,12 @@ Clavier::~Clavier()
     delete ui;
 }
 
-void Clavier::on_pushButtonMarche_clicked()
+void Clavier::LancerTempo()
 {
-    // QMessageBox messageMarche;
-    // messageMarche.setText("j'ai appuyé sur Marche");
-    // messageMarche.exec();
 
-    // QString texteBouton = ui->pushButtonMarche->text();
-    // QMessageBox messageMarche;
-    // messageMarche.setText("j'ai appuyé sur la touche " + texteBouton);
-    // messageMarche.exec();
-
-    // ui->checkBoxLedRouge->checkState();
-    // ui->checkBoxLedRouge->setCheckState(Qt::Checked);
-    timerLed.start(500);
 }
 
-void Clavier::TraiterChiffre()
-{
-    QPushButton *pbouton = static_cast<QPushButton *>(sender());
-    QString texteBouton = pbouton->text();
-    QMessageBox messageChiffre;
-    messageChiffre.setText("j'ai appuyé sur la touche " + texteBouton);
-    messageChiffre.exec();
-}
 
-void Clavier::on_pushButtonArret_clicked()
-{
-   // ui->checkBoxLedRouge->setCheckState(Qt::Unchecked);
-   timerLed.stop();
-}
 
 void Clavier::onTimerLed_timeout()
 {
@@ -68,44 +42,50 @@ void Clavier::onTimerLed_timeout()
         ui->checkBoxLedRouge->setCheckState(Qt::Checked);
 }
 
-
-void Clavier::on_pushButton_2_clicked()
+void Clavier::onQPushButtonClicked()
 {
-    if (leDetecteur == nullptr) {
-        leDetecteur = new Detecteur;
-        leDetecteur->show();
+    QPushButton *touche;
+    touche=qobject_cast<QPushButton*>(sender());
+
+    QString texteTouche;
+    texteTouche = touche->text();
+
+    if (texteTouche == "pushButtonMarche") {
+        laCentrale->TraiterBoutonMarche();
+    }
+    else if (texteTouche == "pushButtonArret") {
+        laCentrale->TraiterBoutonArret();
     }
 }
 
-
-void Clavier::on_pushButton_3_clicked()
+void Clavier::onEtatCentraleChange(CentraleDalarme::MODES_DE_MARCHE _etat)
 {
+    switch(_etat) {
 
-    if(leDetecteur != nullptr){
-        leDetecteur->hide();
-        delete leDetecteur;
-        leDetecteur = nullptr;
-    }
+    case CentraleDalarme::REPOS:
+        timerLed.stop();
+        ui->checkBoxLedVerte->setCheckState(Qt::Unchecked);
+        ui->checkBoxLedRouge->setCheckState(Qt::Unchecked);
+        break;
 
+    case CentraleDalarme::MODIFICATION_CODE:
+        ui->checkBoxLedVerte->setCheckState(Qt::Checked);
+        ui->checkBoxLedRouge->setCheckState(Qt::Checked);
+        break;
 
-}
+    case CentraleDalarme::ACTIVATION:
+        timerLed.start(250);
+        break;
 
+    case CentraleDalarme::DESACTIVATION:
+        timerLed.start(250);
+        break;
 
-void Clavier::on_pushButton_4_clicked()
-{
-    if (leDetecteurTemp == nullptr) {
-        leDetecteurTemp = new DetecteurTemporise;
-        leDetecteurTemp->show();
-    }
-}
+    case CentraleDalarme::SURVEILLANCE:
+        ui->checkBoxLedVerte->setCheckState(Qt::Checked);
+        ui->checkBoxLedRouge->setCheckState(Qt::Unchecked);
+        break;
 
-
-void Clavier::on_pushButton_5_clicked()
-{
-    if(leDetecteurTemp != nullptr){
-        leDetecteurTemp->hide();
-        delete leDetecteurTemp;
-        leDetecteurTemp = nullptr;
     }
 }
 

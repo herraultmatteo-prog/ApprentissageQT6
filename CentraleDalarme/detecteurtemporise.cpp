@@ -1,28 +1,35 @@
 #include "detecteurtemporise.h"
 #include <QMessageBox>
 
-DetecteurTemporise::DetecteurTemporise() {
+DetecteurTemporise::DetecteurTemporise(QWidget *parent) :
+    Detecteur(parent)
+{
 
     setWindowTitle("détecteur temporisé");
-    connect(&TimerPresence,&QTimer::timeout,this,&DetecteurTemporise::onTimerPresence_timeout);
+    connect(&timerIntrus,&QTimer::timeout,this,&DetecteurTemporise::onTimerIntrus_timeout);
 }
 
 DetecteurTemporise::~DetecteurTemporise()
 {
-    TimerPresence.stop();
+    timerIntrus.stop();
 }
 
-void DetecteurTemporise::on_pushButtonIntrus_clicked()
+void DetecteurTemporise::LancerTempo()
 {
-    TimerPresence.setSingleShot(true);
-    TimerPresence.start(3000);
+    timerIntrus.setSingleShot(true);
+    timerIntrus.start(3000);
 }
 
-void DetecteurTemporise::onTimerPresence_timeout()
+void DetecteurTemporise::onTimerIntrus_timeout()
 {
     QMessageBox messageMarche;
     messageMarche.setText(" Intrus a été détecté ");
     messageMarche.exec();
+}
+
+void DetecteurTemporise::on_pushButtonIntrus_clicked()
+{
+    LancerTempo();
 }
 
 

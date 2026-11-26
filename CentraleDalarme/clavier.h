@@ -5,6 +5,8 @@
 #include <QTimer>
 #include "detecteur.h"
 #include "detecteurtemporise.h"
+#include "centraledalarme.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -17,29 +19,22 @@ class Clavier : public QWidget
     Q_OBJECT
 
 public:
-    explicit Clavier(QWidget *parent = nullptr);
+    explicit Clavier(CentraleDalarme *_laCentrale, QWidget *parent = nullptr);
     ~Clavier() override;
+    void LancerTempo();
+
+public slots:
+    void onEtatCentraleChange(CentraleDalarme::MODES_DE_MARCHE _etat);
 
 private slots:
-    void on_pushButtonMarche_clicked();
-
-    void TraiterChiffre();
-
-    void on_pushButtonArret_clicked();
-
     void onTimerLed_timeout();
-
-    void on_pushButton_2_clicked();
-
-    void on_pushButton_3_clicked();
-
-    void on_pushButton_4_clicked();
-
-    void on_pushButton_5_clicked();
+    void onQPushButtonClicked();
 
 private:
     Ui::Clavier *ui;
     QTimer timerLed;
+    QTimer timerClavier;
+    CentraleDalarme *laCentrale;
     Detecteur *leDetecteur;
     DetecteurTemporise *leDetecteurTemp;
 };
